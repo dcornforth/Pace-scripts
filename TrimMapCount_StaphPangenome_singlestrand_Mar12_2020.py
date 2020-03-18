@@ -3,7 +3,8 @@ import datetime
 import os, sys, glob, stat
 import re
 
-lines_per_commandfile = 5 
+print("python3 scriptname.py jobname inputfiles_per_job")
+lines_per_commandfile = int(sys.argv[2])
 
 files_list=[]
 with open("Filestomap.txt", 'r') as f:
@@ -31,9 +32,9 @@ for i in range(ceil(len(files_list)/lines_per_commandfile)):
       print("bowtie2 -x /nv/hp10/dcornforth3/data/Dan/ref_genome/STAPH_PANGENOME/Saureus_pangenome -U /nv/hp10/dcornforth3/scratch/IntermediateSteps/{:s}.unmapped_to_otherbugs.{:s}.fastq -S /nv/hp10/dcornforth3/scratch/IntermediateSteps/{:s}.25mapped_to_Saureus.{:s}.sam".format(filename, current_date, filename, current_date), file=f)
       print("/nv/hp10/dcornforth3/data/Dan/bin/featureCounts -a /nv/hp10/dcornforth3/data/Dan/ref_genome/STAPH_PANGENOME/Saureus_pangenome.gff -s 1 -g locus_tag -t gene -o /nv/hp10/dcornforth3/data/Dan/StaphModelOutput/featurecount25.{:s}.{:s}.mapped_to_Saureus.sam /nv/hp10/dcornforth3/scratch/IntermediateSteps/{:s}.25mapped_to_Saureus.{:s}.sam".format(filename, current_date, filename, current_date), file=f)
   with open("submit_file_" + current_date + "_" + str(i)+ ".pbs", 'w') as f:
-    print("#PBS -N Kelly_job", file=f)
+    print("#PBS -N " + sys.argv[1], file=f)
     print("#PBS -q biocluster-6", file=f)
-    print("#PBS -o Kelly_job.output.$PBS_JOBID", file=f)
+    print("#PBS -o " + sys.argv[1] + ".output.$PBS_JOBID", file=f)
     print("#PBS -j oe", file=f)
     print("#PBS -l nodes=1:ppn=2", file=f)
     print("#PBS -l walltime=40:00:00", file=f)
@@ -62,7 +63,7 @@ with open(output_basename + "short_file_commands", 'w') as f:
   print("/nv/hp10/dcornforth3/data/Dan/bin/featureCounts -a /nv/hp10/dcornforth3/data/Dan/ref_genome/STAPH_PANGENOME/Saureus_pangenome.gff -s 1 -g locus_tag -t gene -o /nv/hp10/dcornforth3/data/Dan/StaphModelOutput/featurecount25.{:s}.{:s}.mapped_to_Saureus.sam /nv/hp10/dcornforth3/scratch/IntermediateSteps/{:s}.25mapped_to_Saureus.{:s}.sam".format(single_filename, current_date, single_filename, current_date), file=f)
 
 with open(single_filename + current_date + "_" + str(i)+ ".pbs", 'w') as f:
-  print("#PBS -N Kelly_job", file=f)
+  print("#PBS -N " + sys.argv[1], file=f)
   print("#PBS -q biocluster-6", file=f)
   print("#PBS -o Kelly_job.output.$PBS_JOBID", file=f)
   print("#PBS -j oe", file=f)
