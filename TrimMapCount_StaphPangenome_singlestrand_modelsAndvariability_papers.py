@@ -88,5 +88,5 @@ with open(single_filename + current_date + "_" + str(i)+ ".pbs", 'w') as f:
   print("#PBS -m abe", file=f)
   print("#PBS -M dcornforth@gmail.com", file=f)
   print("cd $PBS_O_WORKDIR", file=f)
-  print("sh " + single_filename, file=f)
+  print("sh " + "make_shortfile.sh", file=f)
 
