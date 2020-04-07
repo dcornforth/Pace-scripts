@@ -41,8 +41,9 @@ for i in range(ceil(len(files_list)/lines_per_commandfile)):
     for filename in files_list[((i)*lines_per_commandfile):((i)*lines_per_commandfile)+ lines_per_commandfile]:
       print("cutadapt -m " + cutadapt_cutoff + " -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC -o " + intermediate_files_directory+ "/trimmed.{:s}.{:s} {:s} > ".format(filename, current_date, filename) +  intermediate_files_directory +"/cutadapt.{:s}.{:s}.txt".format(filename, current_date), file=f)
       print("bowtie2 -x "+ bowtie2_decoyfiles_directory+ " -U " + intermediate_files_directory + "/trimmed.{:s}.{:s} -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.mapped_to_otherbugs.sam --un ".format(filename) + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq".format(filename, current_date), file=f)
-      print("bowtie2 -x " + bowtie2_targetfiles_directory + " -U " + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.mapped_to_Saureus.{:s}.sam".format(filename, current_date), file=f)
-      print(featurecounts_binaryfile + " -a " + targetgenome_gff + " -s 1 -g locus_tag -t gene -o " + output_directory + "/featurecount.{:s}.{:s}.mapped_to_Saureus.sam ".format(filename, current_date) + intermediate_files_directory + "/{:s}.".format(filename) + output_basename + ".{:s}.sam".format(current_date), file=f)
+      print("bowtie2 -x " + bowtie2_targetfiles_directory + " -U " + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.{:s}.{:s}.sam".format(filename, output_basename, current_date), file=f)
+      print(featurecounts_binaryfile + " -a " + targetgenome_gff + " -s 1 -g locus_tag -t gene -o " + output_directory + "/featurecount.{:s}.{:s}.{:s} ".format(filename, current_date, output_basename) + intermediate_files_directory + "/{:s}.{:s}.{:s}.sam".format(filename, output_basename, current_date), file=f)
+  
   with open("submit_file_" + current_date + "_" + str(i)+ ".pbs", 'w') as f:
     print("#PBS -N " + jobname, file=f)
     print("#PBS -q biocluster-6", file=f)
@@ -59,20 +60,23 @@ for i in range(ceil(len(files_list)/lines_per_commandfile)):
       print("qsub submit_file_" + current_date+ "_" + str(index1) + ".pbs", file=f)
 
 ### OK and now we will make the "short_tester" which just makes a command file with the beginning of the very first input file and makes a launcher.
-os.system('head -1000 ' + files_list[0]+ " > " + output_basename + "short_file_commands")
-single_filename = output_basename + "short_file_commands"
-with open(output_basename + "short_file_commands", 'w') as f:
+single_filename = "short_file.fastq"
+
+with open('make_shortfile.sh', "w") as shortfilemaker:
+    print("gunzip -c " + files_list[0] + " | head -1000 > " + single_filename, file=shortfilemaker)
+
+with open("short_file_commands", 'w') as f:
   print("module load bowtie2/2.3.2", file=f)
   print("module load R/3.4.3", file=f)
   print("module load gcc/7.3.0", file=f)
   print("module load python/2.7", file=f)
   print("module load cutadapt/1.8.1", file=f)
   print("module load samtools", file=f)
-  for filename in files_list[((i)*lines_per_commandfile):((i)*lines_per_commandfile)+ lines_per_commandfile]:
-    print("cutadapt -m " + cutadapt_cutoff + " -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC -o " + intermediate_files_directory+ "/trimmed.{:s}.{:s} {:s} > ".format(filename, current_date, filename) +  intermediate_files_directory +"/cutadapt.{:s}.{:s}.txt".format(filename, current_date), file=f)
-    print("bowtie2 -x "+ bowtie2_decoyfiles_directory+ " -U " + intermediate_files_directory + "/trimmed.{:s}.{:s} -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.mapped_to_otherbugs.sam --un ".format(filename) + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq".format(filename, current_date), file=f)
-    print("bowtie2 -x " + bowtie2_targetfiles_directory + " -U " + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.mapped_to_Saureus.{:s}.sam".format(filename, current_date), file=f)
-    print(featurecounts_binaryfile + " -a " + targetgenome_gff + " -s 1 -g locus_tag -t gene -o " + output_directory + "/featurecount.{:s}.{:s}.mapped_to_Saureus.sam ".format(filename, current_date) + intermediate_files_directory + "/{:s}.".format(filename) + output_basename + ".{:s}.sam".format(current_date), file=f)
+  print("sh make_shortfile.sh", file=f)
+  print("cutadapt -m " + cutadapt_cutoff + " -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC -o " + intermediate_files_directory+ "/trimmed.{:s}.{:s} {:s} > ".format(single_filename, current_date, single_filename) +  intermediate_files_directory +"/cutadapt.{:s}.{:s}.txt".format(single_filename, current_date), file=f)
+  print("bowtie2 -x "+ bowtie2_decoyfiles_directory+ " -U " + intermediate_files_directory + "/trimmed.{:s}.{:s} -S ".format(single_filename, current_date) + intermediate_files_directory + "/{:s}.mapped_to_otherbugs.sam --un ".format(single_filename) + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq".format(single_filename, current_date), file=f)
+  print("bowtie2 -x " + bowtie2_targetfiles_directory + " -U " + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq -S ".format(single_filename, current_date) + intermediate_files_directory + "/{:s}.{:s}.{:s}.sam".format(single_filename, output_basename, current_date), file=f)
+  print(featurecounts_binaryfile + " -a " + targetgenome_gff + " -s 1 -g locus_tag -t gene -o " + output_directory + "/featurecount.{:s}.{:s}.{:s} ".format(single_filename, current_date, output_basename) + intermediate_files_directory + "/{:s}.{:s}.{:s}.sam".format(single_filename, output_basename, current_date), file=f) 
 
 with open(single_filename + current_date + "_" + str(i)+ ".pbs", 'w') as f:
   print("#PBS -N " + sys.argv[1], file=f)
