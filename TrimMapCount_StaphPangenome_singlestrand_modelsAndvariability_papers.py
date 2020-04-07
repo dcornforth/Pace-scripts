@@ -41,8 +41,8 @@ for i in range(ceil(len(files_list)/lines_per_commandfile)):
     for filename in files_list[((i)*lines_per_commandfile):((i)*lines_per_commandfile)+ lines_per_commandfile]:
       print("cutadapt -m " + cutadapt_cutoff + " -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC -o " + intermediate_files_directory+ "/trimmed.{:s}.{:s} {:s} > ".format(filename, current_date, filename) +  intermediate_files_directory +"/cutadapt.{:s}.{:s}.txt".format(filename, current_date), file=f)
       print("bowtie2 -x "+ bowtie2_decoyfiles_directory+ " -U " + intermediate_files_directory + "/trimmed.{:s}.{:s} -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.mapped_to_otherbugs.sam --un ".format(filename) + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq".format(filename, current_date), file=f)
-      print("bowtie2 -x " + bowtie2_targetfiles_directory + " -U" + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.mapped_to_Saureus.{:s}.sam".format(filename, current_date), file=f)
-      print(featurecounts_binaryfile + " -a " + targetgenome_gff + " -s 1 -g locus_tag -t gene -o " + output_directory + "/featurecount.{:s}.{:s}.mapped_to_Saureus.sam ".format(filename, current_date) + intermediate_files_directory + " +/{:s}." + output_basename + ".{:s}.sam".format(filename, current_date), file=f)
+      print("bowtie2 -x " + bowtie2_targetfiles_directory + " -U " + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.mapped_to_Saureus.{:s}.sam".format(filename, current_date), file=f)
+      print(featurecounts_binaryfile + " -a " + targetgenome_gff + " -s 1 -g locus_tag -t gene -o " + output_directory + "/featurecount.{:s}.{:s}.mapped_to_Saureus.sam ".format(filename, current_date) + intermediate_files_directory + "/{:s}.".format(filename) + output_basename + ".{:s}.sam".format(current_date), file=f)
   with open("submit_file_" + current_date + "_" + str(i)+ ".pbs", 'w') as f:
     print("#PBS -N " + jobname, file=f)
     print("#PBS -q biocluster-6", file=f)
@@ -71,8 +71,8 @@ with open(output_basename + "short_file_commands", 'w') as f:
   for filename in files_list[((i)*lines_per_commandfile):((i)*lines_per_commandfile)+ lines_per_commandfile]:
     print("cutadapt -m " + cutadapt_cutoff + " -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC -o " + intermediate_files_directory+ "/trimmed.{:s}.{:s} {:s} > ".format(filename, current_date, filename) +  intermediate_files_directory +"/cutadapt.{:s}.{:s}.txt".format(filename, current_date), file=f)
     print("bowtie2 -x "+ bowtie2_decoyfiles_directory+ " -U " + intermediate_files_directory + "/trimmed.{:s}.{:s} -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.mapped_to_otherbugs.sam --un ".format(filename) + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq".format(filename, current_date), file=f)
-    print("bowtie2 -x " + bowtie2_targetfiles_directory + " -U" + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.mapped_to_Saureus.{:s}.sam".format(filename, current_date), file=f)
-    print(featurecounts_binaryfile + " -a " + targetgenome_gff + " -s 1 -g locus_tag -t gene -o " + output_directory + "/featurecount.{:s}.{:s}.mapped_to_Saureus.sam ".format(filename, current_date) + intermediate_files_directory + " +/{:s}." + output_basename + ".{:s}.sam".format(filename, current_date), file=f)
+    print("bowtie2 -x " + bowtie2_targetfiles_directory + " -U " + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.mapped_to_Saureus.{:s}.sam".format(filename, current_date), file=f)
+    print(featurecounts_binaryfile + " -a " + targetgenome_gff + " -s 1 -g locus_tag -t gene -o " + output_directory + "/featurecount.{:s}.{:s}.mapped_to_Saureus.sam ".format(filename, current_date) + intermediate_files_directory + "/{:s}.".format(filename) + output_basename + ".{:s}.sam".format(current_date), file=f)
 
 with open(single_filename + current_date + "_" + str(i)+ ".pbs", 'w') as f:
   print("#PBS -N " + sys.argv[1], file=f)
