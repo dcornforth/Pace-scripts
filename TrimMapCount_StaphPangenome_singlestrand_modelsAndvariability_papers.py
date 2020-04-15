@@ -5,9 +5,9 @@ import re
 
 ###USAGE
 #in the running directory have a file that lists all the files to be processed in Filestomap.txt; "ls *fastq.gz > Filestomap.txt"
-#python3 scriptname.py jobname number_of_inputfiles_per_job bowtie2_decoyfiles_directory bowtie2_targetfiles_directory intermediate_files_directory output_directory cutadapt_cutoff featurecounts_binaryfile targetgenome_gff 
+#python3 scriptname.py jobname number_of_inputfiles_per_job bowtie2_decoyfiles_directory bowtie2_targetfiles_directory intermediate_files_directory output_directory cutadapt_cutoff featurecounts_binaryfile targetgenome_gff user_email 
 
-#python3 /nv/hp10/dcornforth3/data/Dan/bin/TrimMapCount_StaphPangenome_singlestrand_modelsAndvariability_papers.py ModelPapers 5 /nv/hp10/dcornforth3/data/Dan/bin/NON_SA_JAN22_2020/NON_SA_Jan22_2020_FINAL /nv/hp10/dcornforth3/data/Dan/ref_genome/STAPH_PANGENOME/Saureus_pangenome /nv/hp10/dcornforth3/scratch/IntermediateSteps /nv/hp10/dcornforth3/data/Dan/StaphModelOutput 22 /nv/hp10/dcornforth3/data/Dan/bin/featureCounts /nv/hp10/dcornforth3/data/Dan/ref_genome/STAPH_PANGENOME/Saureus_pangenome.gff
+#python3 /nv/hp10/dcornforth3/data/Dan/bin/TrimMapCount_StaphPangenome_singlestrand_modelsAndvariability_papers.py ModelPapers 5 /nv/hp10/dcornforth3/data/Dan/bin/NON_SA_JAN22_2020/NON_SA_Jan22_2020_FINAL /nv/hp10/dcornforth3/data/Dan/ref_genome/STAPH_PANGENOME/Saureus_pangenome /nv/hp10/dcornforth3/scratch/IntermediateSteps /nv/hp10/dcornforth3/data/Dan/StaphModelOutput 22 /nv/hp10/dcornforth3/data/Dan/bin/featureCounts /nv/hp10/dcornforth3/data/Dan/ref_genome/STAPH_PANGENOME/Saureus_pangenome.gff dcornforth@gmail.com
 
 jobname = sys.argv[1]
 lines_per_commandfile = int(sys.argv[2])
@@ -18,6 +18,7 @@ output_directory = sys.argv[6]
 cutadapt_cutoff = sys.argv[7]
 featurecounts_binaryfile = sys.argv[8]
 targetgenome_gff = sys.argv[9]
+user_email = sys.argv[10]
 
 files_list=[]
 with open("Filestomap.txt", 'r') as f:
@@ -49,10 +50,10 @@ for i in range(ceil(len(files_list)/lines_per_commandfile)):
     print("#PBS -q biocluster-6", file=f)
     print("#PBS -o " + jobname + ".output.$PBS_JOBID", file=f)
     print("#PBS -j oe", file=f)
-    print("#PBS -l nodes=1:ppn=2", file=f)
+    print("#PBS -l nodes=1:ppn=16", file=f)
     print("#PBS -l walltime=40:00:00", file=f)
     print("#PBS -m abe", file=f)
-    print("#PBS -M dcornforth@gmail.com", file=f)
+    print("#PBS -M " + user_email, file=f)
     print("cd $PBS_O_WORKDIR", file=f)
     print("sh " + output_basename + str(i), file=f)
   with open("run_all_submits.sh", 'w') as f:
@@ -81,12 +82,12 @@ with open("short_file_commands", 'w') as f:
 with open(single_filename + current_date + "_" + str(i)+ ".pbs", 'w') as f:
   print("#PBS -N " + sys.argv[1], file=f)
   print("#PBS -q biocluster-6", file=f)
-  print("#PBS -o Kelly_job.output.$PBS_JOBID", file=f)
+  print("#PBS -o " + jobname + "short_file.output.$PBS_JOBID", file=f)
   print("#PBS -j oe", file=f)
-  print("#PBS -l nodes=1:ppn=2", file=f)
+  print("#PBS -l nodes=1:ppn=16", file=f)
   print("#PBS -l walltime=40:00:00", file=f)
   print("#PBS -m abe", file=f)
-  print("#PBS -M dcornforth@gmail.com", file=f)
+  print("#PBS -M " + user_email, file=f)
   print("cd $PBS_O_WORKDIR", file=f)
   print("sh " + "make_shortfile.sh", file=f)
 
