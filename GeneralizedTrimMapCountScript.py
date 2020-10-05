@@ -42,13 +42,10 @@ for i in range(ceil(len(files_list)/lines_per_commandfile)):
     print("module load cutadapt/1.8.1", file=f)
     print("module load samtools", file=f)
     for filename in files_list[((i)*lines_per_commandfile):((i)*lines_per_commandfile)+ lines_per_commandfile]:
-      if(zipped_input == True): 
-        print("cutadapt -m " + cutadapt_cutoff + " -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC -o " + intermediate_files_directory+ "/trimmed.{:s}.{:s}.gz {:s} > ".format(filename, current_date, filename) +  intermediate_files_directory +"/cutadapt.{:s}.{:s}.txt".format(filename, current_date), file=f)
-      else:
-        print("cutadapt -m " + cutadapt_cutoff + " -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC -o " + intermediate_files_directory+ "/trimmed.{:s}.{:s} {:s} > ".format(filename, current_date, filename) +  intermediate_files_directory +"/cutadapt.{:s}.{:s}.txt".format(filename, current_date), file=f)
-      print("bowtie2 -p " + ppn_val + " -x "+ bowtie2_decoyfiles_directory+ " -U " + intermediate_files_directory + "/trimmed.{:s}.{:s}.gz -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.mapped_to_otherbugs.sam --un-gz ".format(filename) + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq.gz".format(filename, current_date), file=f)
-      print("bowtie2 -x " + bowtie2_targetfiles_directory + " -U " + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq.gz -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.{:s}.{:s}.sam".format(filename, output_basename, current_date), file=f)
-      print(featurecounts_binaryfile + " -a " + targetgenome_gff + " -s 1 -g locus -t CDS -o " + output_directory + "/featurecount.{:s}.{:s}.{:s} ".format(filename, current_date, output_basename) + intermediate_files_directory + "/{:s}.{:s}.{:s}.sam".format(filename, output_basename, current_date), file=f)
+      print("cutadapt -m " + cutadapt_cutoff + " -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC -o " + intermediate_files_directory+ "/trimmed.{:s}.{:s}.gz {:s} > ".format(filename, current_date, filename) +  intermediate_files_directory +"/cutadapt.{:s}.{:s}.txt".format(filename, current_date), file=f)
+      print("bowtie2 -p " + ppn_val + " -x "+ bowtie2_decoyfiles_directory+ " -U " + intermediate_files_directory + "/trimmed.{:s}.{:s}.gz -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.mapped_to_otherbugs.sam.gz --un-gz ".format(filename) + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq.gz".format(filename, current_date), file=f)
+      print("bowtie2 -x " + bowtie2_targetfiles_directory + " -U " + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq.gz -S ".format(filename, current_date) + intermediate_files_directory + "/{:s}.{:s}.{:s}.sam.gz".format(filename, output_basename, current_date), file=f)
+      print(featurecounts_binaryfile + " -a " + targetgenome_gff + " -s 0 -g locus -t CDS -o " + output_directory + "/featurecount.{:s}.{:s}.{:s} ".format(filename, current_date, output_basename) + intermediate_files_directory + "/{:s}.{:s}.{:s}.sam.gz".format(filename, output_basename, current_date), file=f) # unstranded!!!
   
   with open("submit_file_" + current_date + "_" + str(i)+ ".pbs", 'w') as f:
     print("#PBS -N " + jobname, file=f)
@@ -84,8 +81,8 @@ with open("short_file_commands", 'w') as f:
   print("sh make_shortfile.sh", file=f)
   print("cutadapt -m " + cutadapt_cutoff + " -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC -o " + intermediate_files_directory+ "/trimmed.{:s}.{:s}.gz {:s} > ".format(single_filename, current_date, single_filename) +  intermediate_files_directory +"/cutadapt.{:s}.{:s}.txt".format(single_filename, current_date), file=f)
   print("bowtie2 -x "+ bowtie2_decoyfiles_directory+ " -U " + intermediate_files_directory + "/trimmed.{:s}.{:s}.gz -S ".format(single_filename, current_date) + intermediate_files_directory + "/{:s}.mapped_to_otherbugs.sam.gz --un-gz ".format(single_filename) + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq.gz".format(single_filename, current_date), file=f)
-  print("bowtie2 -x " + bowtie2_targetfiles_directory + " -U " + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq.gz -S ".format(single_filename, current_date) + intermediate_files_directory + "/{:s}.{:s}.{:s}.sam".format(single_filename, output_basename, current_date), file=f)
-  print(featurecounts_binaryfile + " -a " + targetgenome_gff + " -s 1 -g locus -t CDS -o " + output_directory + "/featurecount.{:s}.{:s}.{:s} ".format(single_filename, current_date, output_basename) + intermediate_files_directory + "/{:s}.{:s}.{:s}.sam".format(single_filename, output_basename, current_date), file=f) 
+  print("bowtie2 -x " + bowtie2_targetfiles_directory + " -U " + intermediate_files_directory + "/{:s}.unmapped_to_otherbugs.{:s}.fastq.gz -S ".format(single_filename, current_date) + intermediate_files_directory + "/{:s}.{:s}.{:s}.sam.gz".format(single_filename, output_basename, current_date), file=f)
+  print(featurecounts_binaryfile + " -a " + targetgenome_gff + " -s 0 -g locus -t CDS -o " + output_directory + "/featurecount.{:s}.{:s}.{:s} ".format(single_filename, current_date, output_basename) + intermediate_files_directory + "/{:s}.{:s}.{:s}.sam.gz".format(single_filename, output_basename, current_date), file=f) 
 
 with open(single_filename + current_date + "_" + str(i)+ ".pbs", 'w') as f:
   print("#PBS -N " + sys.argv[1], file=f)
